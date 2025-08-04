@@ -13,7 +13,7 @@ public class adminController {
         viewAdmin view = new viewAdmin();
         int option = view.getOption();
         if(option==1) {addStudent();return 1;}
-        else if(option==2){ System.out.println("This feature is not yet enabled..."); return 1;}
+        else if(option==2){ removeStudents(); return 1;}
         else if(option==3){ System.out.println("This feature is not yet enabled..."); return 1;}
         else return 0;
     }
@@ -48,5 +48,12 @@ public class adminController {
         int bal = c.getFee()-amtPaid;
         int Stud_ID = view.getLastCourseId()+1;
         view.updateTable(Stud_ID,name,age,hsc,c.getId(),c.getCourseName(),amtPaid,bal,c.getFee());
+    }
+
+    public static void removeStudents() throws SQLException {
+        viewAdmin view = new viewAdmin();
+        view.displayAll();
+        int id = view.getID();
+        view.removeStudent(id);
     }
 }

@@ -128,4 +128,33 @@ public class viewAdmin{
         }
         con.commit();
     }
+    public int getID(){
+        System.out.print("Enter the Student ID : ");
+        return sc.nextInt();
+    }
+    public void displayAll() throws SQLException {
+        String qry = "SELECT * FROM students";
+        Connection con = DbConnection.getConnection();
+        Statement st = con.createStatement();
+        ResultSet rs = st.executeQuery(qry);
+        System.out.println("\nStudent List");
+        while(rs.next()){
+            System.out.printf("%-2d %-20s %-2d\n",rs.getInt(1),rs.getString(2),rs.getInt(3));
+
+        }
+        System.out.println();
+    }
+    public void removeStudent(int id) throws SQLException {
+        String qry = "DELETE FROM students where Stud_ID = "+id;
+        Connection con = DbConnection.getConnection();
+        con.setAutoCommit(false);
+        Statement st = con.createStatement();
+        int row = st.executeUpdate(qry);
+        if(row != 0) {
+            System.out.println("Student Removed From the DB!!!");
+            con.commit();
+            return;
+        }
+        con.rollback();
+    }
 }
