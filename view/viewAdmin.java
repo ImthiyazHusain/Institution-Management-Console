@@ -1,6 +1,8 @@
 package view;
 import model.courses;
 import controller.DbConnection;
+
+import javax.swing.*;
 import java.sql.*;
 import java.util.*;
 
@@ -13,10 +15,10 @@ public class viewAdmin{
         return crtPass.equals(entPass);
     }
     public int getOption(){
-        System.out.print("1. Add Students\n2. Remove Students\n3. Update Student Data\n4. Display All Students\n5. Exit\nEnter Your Choice : ");
+        System.out.print("1. Add Students\n2. Remove Students\n3. Update Student Data\n4. Display All Students\n"+colors.RED+"5. Exit"+colors.RESET+"\nEnter Your Choice : ");
         int opt = sc.nextInt();
         while(opt<=0||opt>5){
-            System.out.println("Invalid Option!!!\nTry Again");
+            System.out.println(colors.RED+"Invalid Option!!!\nTry Again"+colors.RESET);
             opt = sc.nextInt();
         }
         return opt;
@@ -26,7 +28,7 @@ public class viewAdmin{
         Connection con = DbConnection.getConnection();
         Statement st = con.createStatement();
         ResultSet rs = st.executeQuery(qry);
-        System.out.println("\n---Courses Available---");
+        System.out.println(colors.GREEN+"\n---Courses Available---"+colors.RESET);
         System.out.printf("%-5s %-35s %-10s\n","S.no","Course Name","Fee");
         System.out.println("_____________________________________________________");
         while(rs.next()){
@@ -54,10 +56,10 @@ public class viewAdmin{
             id = rs.getInt(1);
             cname = rs.getString(2);
             fee = rs.getInt(3);
-            System.out.println("Selected course : "+rs.getString(2));
+            System.out.println("Selected course : "+colors.GREEN+rs.getString(2)+colors.RESET);
             return new courses(id, cname, fee);
         } else {
-            System.out.println("Course with ID " + id + " does not exist.");
+            System.out.println(colors.RED+"Course with ID " + id + " does not exist."+colors.RESET);
             return null;
         }
     }
@@ -78,7 +80,7 @@ public class viewAdmin{
         return sc.nextInt();
     }
     public boolean valid(){
-        System.out.print("Do you want to change Anything ? y/n : ");
+        System.out.print("Do you want to change Anything ?"+colors.GREEN+" y/n"+colors.RESET+" : ");
         sc.nextLine();
         String yesNo = sc.nextLine().toLowerCase();
         return yesNo.equals("y");
@@ -89,7 +91,7 @@ public class viewAdmin{
         return sc.nextInt();
     }
     public void invalid(){
-        System.out.println("Invalid Option!!!");
+        System.out.println(colors.RED+"Invalid Option!!!"+colors.RESET);
     }
     public int getLastCourseId() throws SQLException {
         String qry = "SELECT Stud_ID FROM Students ORDER BY Stud_ID DESC LIMIT 1";
@@ -99,7 +101,7 @@ public class viewAdmin{
         if (rs.next()) {
             return rs.getInt(1);
         } else {
-            return -1;
+            return 0;
         }
     }
     public void updateTable(int Stud_ID,String Stud_Name,int Stud_Age,int Stud_HSC_Mark,int Course_ID,String Course_Name,int Amt_Paid,int Amt_Balance,int Total_fee) throws SQLException {
@@ -118,10 +120,10 @@ public class viewAdmin{
         pst.setInt(9,Total_fee);
         int rs = pst.executeUpdate();
         if(rs!=1){
-            System.out.println("Error Occurred");
+            System.out.println(colors.RED+"Error Occurred"+colors.RESET);
             con.rollback();
         }else{
-            System.out.println("Student Added Successfully");
+            System.out.println(colors.GREEN+"---Student Added Successfully---"+colors.RESET);
         }
         con.commit();
     }
@@ -136,13 +138,17 @@ public class viewAdmin{
         ResultSet rs = st.executeQuery(qry);
         System.out.println("\nStudent List");
         int f =0;
+        System.out.printf("%-5s %-20s %-5s %-30s\n","ID","Name","Age","Department");
+        System.out.println("--------------------------------------------------------------");
         while(rs.next()){
             f=1;
-            System.out.printf("%-2d %-20s %-2d\n",rs.getInt(1),rs.getString(2),rs.getInt(3));
+            System.out.printf("%-5d %-20s %-5d %-30s\n",rs.getInt(1),rs.getString(2),rs.getInt(3),rs.getString(6));
 
         }
+        System.out.println("--------------------------------------------------------------");
+
         if(f==0){
-            System.out.println("---No Student Available---");
+            System.out.println(colors.RED+"---No Student Available---"+colors.RESET);
         }else{
             if(n==1) {
                 int id = getID();
@@ -158,9 +164,11 @@ public class viewAdmin{
         Statement st = con.createStatement();
         int row = st.executeUpdate(qry);
         if(row != 0) {
-            System.out.println("Student Removed From the DB!!!");
+            System.out.println(colors.GREEN+"Student Removed From the DB!!!"+colors.RESET);
             con.commit();
             return;
+        }else{
+            System.out.println(colors.RED+"Invalid ID"+colors.RESET);
         }
         con.rollback();
     }

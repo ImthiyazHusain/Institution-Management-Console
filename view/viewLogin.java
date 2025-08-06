@@ -3,30 +3,34 @@ package view;
 import java.util.Scanner;
 
 public class viewLogin {
-    public static final String RESET = "\u001B[0m";
-    public static final String GREEN = "\u001B[32m";
-    public static final String CYAN = "\u001B[36m";
-    public static final String YELLOW = "\u001B[33m";
-    public static final String BLUE = "\u001B[34m";
-
-    private Scanner scanner = new Scanner(System.in);
+    private Scanner sc = new Scanner(System.in);
     public void welcome(){
-        System.out.println("\n\t\tWelcome to Institution Management System!!!\n");
+        System.out.println("\n"+colors.BRIGHT_WHITE+"---Institution Management System---\n"+colors.RESET);
     }
     public void error(){
-        System.out.println("Wrong Credentials\nTry Again");
+        System.out.println(colors.RED+"Wrong Credentials,Try Again"+colors.RESET);
     }
     public void success(){
-        System.out.println("---Login Successful---");
+        System.out.println(colors.GREEN+"---Login Successful---"+colors.RESET);
     }
     public int showLoginMenu() {
 
-        System.out.println("Login as:"+YELLOW);
+        System.out.println("Login as:"+colors.YELLOW);
         System.out.println("1. Admin");
         System.out.println("2. Teacher");
         System.out.println("3. Student");
-        System.out.println("4. Exit"+RESET);
-        System.out.print("\nEnter choice: ");
-        return Integer.parseInt(scanner.nextLine());
+        System.out.println(colors.RED+"4. Exit"+colors.RESET);
+        int n = 0;
+        while(true) {
+            try {
+                System.out.print("\nEnter choice: ");
+                n = sc.nextInt();
+                break;
+            } catch (Exception e) {
+                System.out.println(colors.RED+"ERROR:"+e+",Try Again!"+colors.RESET);
+                sc.nextLine();
+            }
+        }
+        return n;
     }
 }
