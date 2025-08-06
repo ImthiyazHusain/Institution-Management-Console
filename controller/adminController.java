@@ -15,6 +15,7 @@ public class adminController {
         if(option==1) {addStudent();return 1;}
         else if(option==2){ removeStudents(); return 1;}
         else if(option==3){ System.out.println("This feature is not yet enabled..."); return 1;}
+        else if(option==4){view.displayAll(0);return 1;}
         else return 0;
     }
     public static void addStudent() throws SQLException {
@@ -52,8 +53,6 @@ public class adminController {
 
     public static void removeStudents() throws SQLException {
         viewAdmin view = new viewAdmin();
-        view.displayAll();
-        int id = view.getID();
-        view.removeStudent(id);
+        view.displayAll(1);
     }
 }

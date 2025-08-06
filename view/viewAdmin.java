@@ -10,15 +10,12 @@ public class viewAdmin{
         System.out.print("Enter your Password : ");
         String crtPass = "Admin123";
         String entPass = sc.nextLine();
-        if(crtPass.equals(entPass)){
-            return true;
-        }
-        return false;
+        return crtPass.equals(entPass);
     }
     public int getOption(){
-        System.out.print("1. Add Students\n2. Remove Students\n3. Update Student Data\n4. Exit\nEnter Your Choice : ");
+        System.out.print("1. Add Students\n2. Remove Students\n3. Update Student Data\n4. Display All Students\n5. Exit\nEnter Your Choice : ");
         int opt = sc.nextInt();
-        while(opt<=0||opt>4){
+        while(opt<=0||opt>5){
             System.out.println("Invalid Option!!!\nTry Again");
             opt = sc.nextInt();
         }
@@ -29,11 +26,14 @@ public class viewAdmin{
         Connection con = DbConnection.getConnection();
         Statement st = con.createStatement();
         ResultSet rs = st.executeQuery(qry);
-        System.out.println("\nCourses Available");
+        System.out.println("\n---Courses Available---");
+        System.out.printf("%-5s %-35s %-10s\n","S.no","Course Name","Fee");
+        System.out.println("_____________________________________________________");
         while(rs.next()){
-            System.out.println(rs.getInt(1)+" "+rs.getString(2)+" (fee: "+rs.getInt(3)+")");
+            System.out.printf("%-5d %-35s fee: %-10d\n",rs.getInt(1),rs.getString(2),rs.getInt(3));
         }
-        System.out.println();
+        System.out.println("_____________________________________________________");
+
     }
     public courses select() throws SQLException {
         String qry = "SELECT * FROM courses where CID = ?";
@@ -81,10 +81,7 @@ public class viewAdmin{
         System.out.print("Do you want to change Anything ? y/n : ");
         sc.nextLine();
         String yesNo = sc.nextLine().toLowerCase();
-        if(yesNo.equals("y")) {
-            return true;
-        }
-        else return false;
+        return yesNo.equals("y");
     }
     public int validWhat(){
         System.out.println("1. Name\n2. Age\n3. HSC Mark\n4. Course");
@@ -132,15 +129,25 @@ public class viewAdmin{
         System.out.print("Enter the Student ID : ");
         return sc.nextInt();
     }
-    public void displayAll() throws SQLException {
+    public void displayAll(int n) throws SQLException {
         String qry = "SELECT * FROM students";
         Connection con = DbConnection.getConnection();
         Statement st = con.createStatement();
         ResultSet rs = st.executeQuery(qry);
         System.out.println("\nStudent List");
+        int f =0;
         while(rs.next()){
+            f=1;
             System.out.printf("%-2d %-20s %-2d\n",rs.getInt(1),rs.getString(2),rs.getInt(3));
 
+        }
+        if(f==0){
+            System.out.println("---No Student Available---");
+        }else{
+            if(n==1) {
+                int id = getID();
+                removeStudent(id);
+            }
         }
         System.out.println();
     }
