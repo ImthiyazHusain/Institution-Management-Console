@@ -5,6 +5,7 @@ public class student {
     private int age;
     private int hscMark;
     private courses course;
+    private String email;
 
     public student (String name, int age, int hscMark, courses course){
         this.name = name;
@@ -25,6 +26,9 @@ public class student {
     public courses getCourse(){
         return course;
     }
+    public String getEmail() {
+        return email;
+    }
     @Override
     public String toString() {
         return "Student{" +
@@ -32,6 +36,7 @@ public class student {
                 ", age=" + age +
                 ", hscMark=" + hscMark +
                 ", course=" + course +
+                ", Email=" + email +
                 '}';
     }
 }

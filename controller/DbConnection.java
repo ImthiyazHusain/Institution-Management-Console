@@ -1,11 +1,13 @@
 package controller;
+import Util.utilities;
+
 import java.sql.*;
 
 public class DbConnection {
 
-    private static final String userName = DBC.userName;
-    private static final String passWord = DBC.passWord;
-    private static final String url = DBC.url;
+    private static final String userName = utilities.userName;
+    private static final String passWord = utilities.passWord;
+    private static final String url = utilities.url;
 
 
     public static Connection getConnection() throws SQLException{
