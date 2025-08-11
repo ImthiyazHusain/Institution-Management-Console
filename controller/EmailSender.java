@@ -1,8 +1,10 @@
-package view;
+package controller;
 import static Util.utilities.*;
 
 import jakarta.mail.*;
 import jakarta.mail.internet.*;
+import view.viewAdmin;
+
 import java.util.Properties;
 
 public class EmailSender {
@@ -24,7 +26,7 @@ public class EmailSender {
             msg.setSubject(subject);
             msg.setText(body);
             Transport.send(msg);
-            System.out.println("✅ Email sent successfully!");
+            viewAdmin.emailSentSuccessfully();
         } catch (MessagingException e) {
             e.printStackTrace();
         }

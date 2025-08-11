@@ -1,7 +1,6 @@
 package controller;
 
 import model.*;
-import view.EmailSender;
 import view.viewAdmin;
 import static controller.Input.*;
 import java.sql.*;
@@ -15,66 +14,72 @@ public class adminController {
         try {
             con = DbConnection.getConnection();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            System.out.println("Error Occurred");
         }
     }
 
     public static boolean verify(){
-        viewAdmin view = new viewAdmin();
-        return view.getPass();
+        return viewAdmin.getPass();
     }
+
     public static int displayOptions() throws SQLException {
-        viewAdmin view = new viewAdmin();
-        int option = view.getOption();
-        if(option==1) {addStudent();return 1;}
+        int option = viewAdmin.getOption();
+        if(option==1) { addStudent();return 1;}
         else if(option==2){ removeStudents(); return 1;}
-        else if(option==3){ update(); return 1;}
-        else if(option==4){displayAll(0);return 1;}
-        else if(option==5){view.feePending();return 1;}
+        else if(option==3){ viewAdmin.updateStatus("Feature Not Yet Enabled..."); return 1;}
+        else if(option==4){ displayAllDOA(0);return 1;}
+        else if(option==5){ feePending();return 1;}
         else return 0;
     }
-    public static void addStudent() throws SQLException {
-        viewAdmin view = new viewAdmin();
-        String name = view.getName();
-        int age = view.getAge();
-        String gender = view.getGender();
-        int hsc = view.getHsc();
-        courses c = view.ChooseCourse();
-        String email;
-        while (true) {
-            email = view.getMail();
-            String GenOtp = OTPgenerator.generateOTP();
-            EmailSender.sendEmail(email, "Verification", "Your OTP is: " + GenOtp);
-            String verifyOtp = view.verifyOtp(GenOtp);
-            if(verifyOtp.equals("retry")){
-                continue;
-            }else if(verifyOtp.equals("true")){
-                view.MailVerified();
-                break;
-            }
+
+    public static courses chooseCourse() throws SQLException {
+        String qry = "SELECT * FROM courses";
+        String qry2 = "SELECT * FROM courses where CID = ?";
+        Statement st = con.createStatement();
+        PreparedStatement pst = con.prepareStatement(qry2);
+        ResultSet rs = st.executeQuery(qry);
+        viewAdmin.printCourse(rs);
+        int courseSelected = viewAdmin.getCourseID();
+        pst.setInt(1,courseSelected);
+        rs = pst.executeQuery();
+        if(rs.next()) {
+            viewAdmin.printSelectedCourse(rs);
+            return new courses(rs.getInt(1), rs.getString(2), rs.getInt(3));
+        }else{
+            viewAdmin.updateStatus(RED,"Invalid Course ID!!!",RED);
+            return chooseCourse();
         }
-        while(view.valid()){
-            int op = view.validWhat();
+    }
+
+    public static void addStudent() throws SQLException {
+        String name = viewAdmin.getName();
+        int age = viewAdmin.getAge();
+        String gender = viewAdmin.getGender();
+        int hsc = viewAdmin.getHsc();
+        courses c = chooseCourse();
+        String email = verifyEmailWithOTP();
+        while(viewAdmin.valid()){
+            int op = viewAdmin.validWhat();
             switch (op){
                 case 1:
-                    name = view.getName();
+                    name = viewAdmin.getName();
                     break;
                 case 2:
-                    age = view.getAge();
+                    age = viewAdmin.getAge();
                     break;
                 case 3:
-                    hsc = view.getHsc();
+                    hsc = viewAdmin.getHsc();
                     break;
                 case 4:
-                    c = view.ChooseCourse();
+                    c = chooseCourse();
                     break;
                 default:
-                    view.invalid();
+                    viewAdmin.invalid();
             }
         }
-        int amtPaid = view.getPaidFee();
+        int amtPaid = viewAdmin.getPaidFee();
         int bal = c.getFee()-amtPaid;
-        int Stud_ID = getLastCourseId()+1;
+        int Stud_ID = getLastStudentId()+1;
         String qry = "insert into students values(?,?,?,?,?,?,?,?,?,?,?)";;
         PreparedStatement pst = con.prepareStatement(qry);
         pst.setInt(1, Stud_ID);
@@ -89,66 +94,72 @@ public class adminController {
         pst.setInt(10, c.getFee());
         pst.setString(11, gender);
         int rs = pst.executeUpdate();
-        view.updateStatus(rs);
+        viewAdmin.updateStatus(rs);
     }
-    public static void displayAll(int n) throws SQLException {
+
+    public static void displayAllDOA(int n) throws SQLException {
         String qry = "SELECT * FROM students";
         Statement st = con.createStatement();
         ResultSet rs = st.executeQuery(qry);
         System.out.println("\nStudent List");
-        int f = 0;
-        System.out.println("----+--------------------+-----+------------------------------+-----------+");
-        System.out.printf("%-5s %-20s %-5s %-30s %-7s\n", "ID", "Name", "Age", "Department", "Balance Fee");
-        System.out.println("----+--------------------+-----+------------------------------+-----------+");
-        while (rs.next()) {
-            f = 1;
-            System.out.printf("%-5d %-20s %-5d %-30s %-7d \n", rs.getInt(1), rs.getString(2), rs.getInt(3), rs.getString(7), rs.getInt(9));
-
-        }
-        System.out.println("----+--------------------+-----+------------------------------+-----------+");
-
+        int f = viewAdmin.displayAll(rs);
         if (f == 0) {
-            System.out.println(RED + "---No Student Available---" + RESET);
+            viewAdmin.updateStatus(RED,"---No Student Available---",RESET);
         } else {
             if (n == 1) {
+                viewAdmin.updateStatus("Enter the Student ID to remove : ");
                 int id = getInt();
                 removeStudent(id);
             }
         }
         System.out.println();
     }
+
     public static void removeStudents() throws SQLException {
-        viewAdmin view = new viewAdmin();
-        displayAll(1);
+        displayAllDOA(1);
     }
+
     public static void removeStudent(int id) throws SQLException {
-        String qry = "DELETE FROM students where Stud_ID = " + id;
-        Statement st = con.createStatement();
-        int row = st.executeUpdate(qry);
+        String qry = "DELETE FROM students where Stud_ID = ?";
+        PreparedStatement pst = con.prepareStatement(qry);
+        pst.setInt(1,id);
+        int row = pst.executeUpdate();
         if (row != 0) {
-            System.out.println(GREEN + "Student Removed From the DB!!!" + RESET);
-            return;
+            viewAdmin.updateStatus(GREEN,"Student Removed From the DB!!!",RESET);
         } else {
-            System.out.println(RED + "Invalid ID" + RESET);
+            viewAdmin.updateStatus(RED,"Invalid ID",RESET);
         }
     }
+
     public static void sendMailFeePending() throws SQLException {
-        viewAdmin view = new viewAdmin();
         String qry = "SELECT Stud_Name,Email,Course_Name,Amt_Balance FROM students where Amt_Balance != 0";
         Statement stm = con.createStatement();
         ResultSet rs = stm.executeQuery(qry);
-        view.updateStatus("Sending Mails...");
+        viewAdmin.updateStatus("Sending Mails...");
         while(rs.next()){
             String name = rs.getString(1);
             String email = rs.getString(2);
             String Course = rs.getString(3);
             int balanceFee = rs.getInt(4);
-            EmailSender.FeePending(email, "Fee Remainder", "Your son/daughter Studying in "+Course+" has a pending Fee Amount of "+balanceFee+"/- make sure to pay the balance on time,\n\nThank you");
+            EmailSender.FeePending(email, "Fee Reminder", "Your son/daughter Studying in "+Course+" has a pending Fee Amount of "+balanceFee+"/- make sure to pay the balance on time,\n\nThank you");
         }
-        view.updateStatus("✅ Mails Successfully Sent");
+        viewAdmin.updateStatus("✅ Mails Successfully Sent");
     }
-    public static int getLastCourseId() throws SQLException {
-        String qry = "SELECT Stud_ID FROM Students ORDER BY Stud_ID DESC LIMIT 1";
+
+    private static String verifyEmailWithOTP() {
+        while (true) {
+            String email = viewAdmin.getMail();
+            String otp = OTPgenerator.generateOTP();
+            EmailSender.sendEmail(email, "Verification", "Your OTP is: " + otp);
+            if (viewAdmin.verifyOtp(otp)) {
+                viewAdmin.mailVerified();
+                return email;
+            }
+        }
+    }
+
+    public static int getLastStudentId() throws SQLException {
+        String qry = "SELECT MAX(Stud_ID) FROM Students";
         PreparedStatement pst = con.prepareStatement(qry);
         ResultSet rs = pst.executeQuery();
         if (rs.next()) {
@@ -157,63 +168,73 @@ public class adminController {
             return 0;
         }
     }
-    public static void update() throws SQLException {
-        displayAll(0);
-        viewAdmin view = new viewAdmin();
-        String name = view.getName();
-        int age = view.getAge();
-        int hsc = view.getHsc();
-        courses c = view.ChooseCourse();
-        String email;
-        while (true) {
-            email = view.getMail();
-            String GenOtp = OTPgenerator.generateOTP();
-            EmailSender.sendEmail(email, "Verification", "Your OTP is: " + GenOtp);
-            String verifyOtp = view.verifyOtp(GenOtp);
-            if(verifyOtp.equals("retry")){
-                continue;
-            }else if(verifyOtp.equals("true")){
-                view.MailVerified();
-                break;
-            }
-        }
-        while(view.valid()){
-            int op = view.validWhat();
-            switch (op){
-                case 1:
-                    name = view.getName();
-                    break;
-                case 2:
-                    age = view.getAge();
-                    break;
-                case 3:
-                    hsc = view.getHsc();
-                    break;
-                case 4:
-                    c = view.ChooseCourse();
-                    break;
-                default:
-                    view.invalid();
-            }
-        }
-        int amtPaid = view.getPaidFee();
-        int bal = c.getFee()-amtPaid;
-        int Stud_ID = getLastCourseId()+1;
 
-        String qry = "insert into students values(?,?,?,?,?,?,?,?,?,?)";
-        con.setAutoCommit(false);
-        PreparedStatement pst = con.prepareStatement(qry);
-        pst.setInt(1, Stud_ID);
-        pst.setString(2, name);
-        pst.setInt(3, age);
-        pst.setInt(4, hsc);
-        pst.setString(5, email);
-        pst.setInt(6, c.getId());
-        pst.setString(7, c.getCourseName());
-        pst.setInt(8, amtPaid);
-        pst.setInt(9, bal);
-        pst.setInt(10, c.getFee());
-        int rs = pst.executeUpdate();
-        view.updateStatus(rs);
+//    public static void update() throws SQLException {
+//        displayAllDOA(0);
+//        String name = viewAdmin.getName();
+//        int age = viewAdmin.getAge();
+//        int hsc = view.getHsc();
+//        courses c =chooseCourse();
+//        String email;
+//        while (true) {
+//            email = view.getMail();
+//            String GenOtp = OTPgenerator.generateOTP();
+//            EmailSender.sendEmail(email, "Verification", "Your OTP is: " + GenOtp);
+//            boolean verifyOtp = view.verifyOtp(GenOtp);
+//            if(!verifyOtp){
+//                continue;
+//            }else {
+//                view.mailVerified();
+//                break;
+//            }
+//        }
+//        while(view.valid()){
+//            int op = view.validWhat();
+//            switch (op){
+//                case 1:
+//                    name = view.getName();
+//                    break;
+//                case 2:
+//                    age = view.getAge();
+//                    break;
+//                case 3:
+//                    hsc = view.getHsc();
+//                    break;
+//                case 4:
+//                    c = chooseCourse();
+//                    break;
+//                default:
+//                    view.invalid();
+//            }
+//        }
+//        int amtPaid = view.getPaidFee();
+//        int bal = c.getFee()-amtPaid;
+//        int Stud_ID = getLastCourseId()+1;
+//
+//        String qry = "insert into students values(?,?,?,?,?,?,?,?,?,?)";
+//        con.setAutoCommit(false);
+//        PreparedStatement pst = con.prepareStatement(qry);
+//        pst.setInt(1, Stud_ID);
+//        pst.setString(2, name);
+//        pst.setInt(3, age);
+//        pst.setInt(4, hsc);
+//        pst.setString(5, email);
+//        pst.setInt(6, c.getId());
+//        pst.setString(7, c.getCourseName());
+//        pst.setInt(8, amtPaid);
+//        pst.setInt(9, bal);
+//        pst.setInt(10, c.getFee());
+//        int rs = pst.executeUpdate();
+//        view.updateStatus(rs);
+//    }
+
+    public static void feePending() throws SQLException {
+        String qry = "SELECT * FROM students where Amt_Balance  != 0";
+        Statement st = con.createStatement();
+        ResultSet rs = st.executeQuery(qry);
+        viewAdmin.displayFeePending(rs);
+        if(viewAdmin.askToSendMail()) {
+            sendMailFeePending();
+        }
     }
 }
