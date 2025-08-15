@@ -1,10 +1,12 @@
 package controller;
 import view.viewLogin;
 import view.viewStudent;
+
+import java.io.IOException;
 import java.sql.SQLException;
 
 public class mainController {
-    public void start() throws SQLException {
+    public void start() throws SQLException, IOException {
         viewLogin view = new viewLogin();
         view.welcome();
         int choice = 0;

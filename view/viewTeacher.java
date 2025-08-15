@@ -50,8 +50,12 @@ public class viewTeacher {
         }
     }
 
-    public static int currentStudent(String name) {
+    public static int currentStudentM(String name) {
         System.out.printf("%-20s Mark : ",name);
+        return getInt();
+    }
+    public static int currentStudentA(String name) {
+        System.out.printf("%-20s : ",name);
         return getInt();
     }
 

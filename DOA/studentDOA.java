@@ -294,6 +294,16 @@ public class studentDOA {
             e.printStackTrace();
         }
     }
-
-
+    public static boolean updatePass(String name ,String pass){
+        String qry = "update students set Password = ? where Stud_Name = ?";
+        try(Connection con = DbConnection.getConnection()){
+            PreparedStatement pst = con.prepareStatement(qry);
+            pst.setString(1,pass);
+            pst.setString(2,name);
+            int r = pst.executeUpdate();
+            return r>0;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

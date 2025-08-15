@@ -6,6 +6,8 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import static Util.colors.*;
+
 public class teacherDOA {
     public static int getLastTeacherId() throws SQLException {
         String qry = "SELECT MAX(Teach_ID) FROM teacherLogin";
@@ -133,7 +135,7 @@ public class teacherDOA {
                 String status;
 
                 while (true) {
-                    int n = viewTeacher.currentStudent(name);
+                    int n = viewTeacher.currentStudentA(name);
                     if (n == 1) {
                         status = "Present";
                         break;
@@ -141,7 +143,7 @@ public class teacherDOA {
                         status = "Absent";
                         break;
                     } else {
-                        viewTeacher.updateStatus("RED", "Not Valid, Try Again\n", "RESET");
+                        viewTeacher.updateStatus(RED, "Not Valid, Try Again\n", RESET);
                     }
                 }
 
@@ -168,7 +170,7 @@ public class teacherDOA {
             while (rs.next()) {
                 int currentStud = rs.getInt("Stud_ID");
                 String name = rs.getString("Stud_Name");
-                int mark = viewTeacher.currentStudent(name);
+                int mark = viewTeacher.currentStudentM(name);
                 updatePst.setInt(1, mark);
                 updatePst.setInt(2, currentStud);
                 updatePst.executeUpdate();
