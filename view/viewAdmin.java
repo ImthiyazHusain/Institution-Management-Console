@@ -1,8 +1,10 @@
 package view;
+import model.courses;
 import static Util.colors.*;
 import static Util.utilities.*;
-import static controller.Input.*;
+import static Util.Input.*;
 import java.sql.*;
+import java.util.List;
 import java.util.regex.Matcher;
 
 public class viewAdmin {
@@ -12,9 +14,9 @@ public class viewAdmin {
     }
 
     public static int getOption() {
-        System.out.print(BRIGHT_CYAN + "1. Add Students\n2. Remove Students\n3. Update Student Data\n4. Display All Students\n" + "5. Fee Pending Students list\n" + RED + "6. Exit" + RESET + "\nEnter Your Choice : ");
+        System.out.print(BRIGHT_CYAN + "\n1. Add Students\n2. Remove Students\n3. Update Student Data\n4. Display All Students\n" + "5. Fee Pending Students list\n"+"6. Search\n" +"7. Add Teacher\n"+ RED + "8. Exit" + RESET + "\n\nEnter Your Choice : ");
         int opt = getInt();
-        while (opt <= 0 || opt > 6) {
+        while (opt <= 0 || opt > 8) {
             System.out.print(RED + "Invalid Option!!!❌\nTry Again : " + RESET);
             opt = getInt();
         }
@@ -23,6 +25,10 @@ public class viewAdmin {
 
     public static String getName() {
         System.out.print("Enter the Student Name : ");
+        return getString();
+    }
+    public static String getTeacherName() {
+        System.out.print("Enter the Staff Name : ");
         return getString();
     }
 
@@ -54,14 +60,16 @@ public class viewAdmin {
         return HSC;
     }
 
-    public static void printCourse(ResultSet rs) throws SQLException {
-        System.out.println(GREEN + "\n---Courses Available---" + RESET);
-        System.out.printf("%-5s %-35s %-10s\n", "S.no", "Course Name", "Fee");
-        System.out.println("_____________________________________________________");
-        while (rs.next()) {
-            System.out.printf("%-5d %-35s fee: %-10d\n", rs.getInt(1), rs.getString(2), rs.getInt(3));
+    public static void printCourse(List<courses> courseList) {
+        System.out.println("+----+-------------------------------------+--------+");
+        System.out.printf("| %-2s | %-35s | %-6s |\n", "ID", "Course Name", "Fee");
+        System.out.println("+----+-------------------------------------+--------+");
+
+        for (courses c : courseList) {
+            System.out.printf("| %-2d | %-35s | %-6d |\n", c.getId(), c.getCourseName(), c.getFee());
         }
-        System.out.println("_____________________________________________________");
+
+        System.out.println("+----+-------------------------------------+--------+");
     }
 
     public static int getCourseID(){
@@ -75,22 +83,24 @@ public class viewAdmin {
         return id;
     }
 
-    public static void printSelectedCourse(ResultSet rs) throws SQLException {
-        if(rs.next()){
-            System.out.println("Selected Course : "+rs.getString(2));
-        }else{
-            System.out.println(RED+"No Available Course"+RESET);
-        }
+    public static void printSelectedCourse(courses c) throws SQLException {
+            System.out.println("Selected Course : "+c.getCourseName());
     }
 
     public static boolean valid() {
-        System.out.print("Do you want to change Anything ? " + GREEN + "(y/n)" + RESET + " : ");
+        System.out.print("Do you want to change Anything else ? " + GREEN + "(y/n)" + RESET + " : ");
         String yesNo = getString().toLowerCase();
         return yesNo.equals("y");
     }
 
     public static int validWhat() {
         System.out.println("1. Name\n2. Age\n3. HSC Mark\n4. Course");
+        System.out.println("What do you want to Change? : ");
+        return getInt();
+    }
+
+    public static int updateWhat() {
+        System.out.println("1. Name\n2. Age\n3. HSC Mark\n4. Course\n5. Email\n6. Gender\n7. Amount Paid");
         System.out.println("What do you want to Change? : ");
         return getInt();
     }
@@ -106,14 +116,14 @@ public class viewAdmin {
     }
 
     public static String getMail() {
-        System.out.print("Enter the Student Mail : ");
+        System.out.print("Enter the Mail : ");
         while (true) {
             String mail = getString();
             Matcher m = GMAIL_PATTERN.matcher(mail);
             if (m.matches()) {
                 return mail;
             } else {
-                System.out.print(RED + "Wrong mail, " + RESET + "Try Again : ");
+                System.out.print(RED + "❌Wrong mail, " + RESET + "Try Again : ");
             }
         }
     }
@@ -122,7 +132,7 @@ public class viewAdmin {
         System.out.print("Enter the OTP: ");
         boolean match = genOtp.equals(getString());
         if (!match) {
-            System.out.println(RED + "Wrong OTP!" + RESET);
+            System.out.println(RED + "❌Wrong OTP!" + RESET);
         }
         return match;
     }
@@ -132,7 +142,7 @@ public class viewAdmin {
     }
 
     public static void invalid() {
-        System.out.println(RED + "Invalid Option!!!" + RESET);
+        System.out.println(RED + "❌Invalid Option!!!" + RESET);
     }
 
     public static void emailSentSuccessfully(){
@@ -140,28 +150,25 @@ public class viewAdmin {
     }
 
     private static void printStudentTableHeader() {
-        System.out.println("----|--------------------|-----|------------------------------|-------------|");
+        System.out.println("----+--------------------+-----+------------------------------+-------------+");
         System.out.printf("%-5s %-20s %-5s %-30s %-7s\n", "ID", "Name", "Age", "Department", "Balance Fee");
-        System.out.println("----|--------------------|-----|------------------------------|-------------|");
+        System.out.println("----+--------------------+-----+------------------------------+-------------+");
     }
 
-    public static int displayAll(ResultSet rs) throws SQLException {
+    public static boolean displayAll(ResultSet rs) throws SQLException {
         int f =0;
+        System.out.println("\nStudent List");
         printStudentTableHeader();
         while(rs.next()){
             f=1;
             printStudentDetails(rs.getInt(1), rs.getString(2), rs.getInt(3), rs.getString(7), rs.getInt(9));
         }
-        System.out.println("----|--------------------|-----|------------------------------|-------------|");
-        return f;
+        System.out.println("----+--------------------+-----+------------------------------+-------------+");
+        return f>0;
     }
 
     public static void printStudentDetails(int id, String name, int age ,String dept, int bal_fee ){
         System.out.printf("%-5d %-20s %-5d %-30s %-7d \n",id,name,age,dept,bal_fee);
-    }
-
-    public static void updateStatus(int rs) {
-        System.out.println((rs!=1)?RED + "Error Occurred" + RESET:GREEN + "---Student Added Successfully---" + RESET);
     }
 
     public static void updateStatus(String status) {
@@ -180,7 +187,7 @@ public class viewAdmin {
             System.out.printf("%-5d %-20s %-5d %-30s %-7d \n", rs.getInt(1), rs.getString(2), rs.getInt(3), rs.getString(7), rs.getInt(9));
 
         }
-        System.out.println("----|--------------------|-----|------------------------------|-------------|");
+        System.out.println("----+--------------------+-----+------------------------------+-------------+");
 
         if (f == 0) {
             System.out.println(RED + "---No Student Available---" + RESET);
@@ -191,5 +198,27 @@ public class viewAdmin {
         System.out.print("Do you want to send them a reminder? (y/n) : ");
         String option = getString();
         return option.equalsIgnoreCase("y");
+    }
+
+    public static int getUpdateStudentId(){
+        System.out.print("Enter Student ID : ");
+        return getInt();
+    }
+
+    public static void printStudentNotExist(){
+        updateStatus(RED+"No Student Exist With That ID"+RESET);
+    }
+
+    public static void studentUpdated(){
+        updateStatus(GREEN+"✅Student Updated..."+RESET);
+    }
+
+    public static void studentUpdateError(){
+        updateStatus(RED+"Error While Updating Student Detail!!!"+RESET);
+    }
+
+    public static int searchBy(){
+        System.out.print("1. Search By ID\n2. Search By Name\nEnter your Choice : ");
+        return getInt();
     }
 }

@@ -1,3 +1,5 @@
+package app;
+
 import controller.mainController;
 
 import java.sql.SQLException;

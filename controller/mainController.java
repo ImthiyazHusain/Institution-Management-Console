@@ -1,6 +1,6 @@
 package controller;
 import view.viewLogin;
-
+import view.viewStudent;
 import java.sql.SQLException;
 
 public class mainController {
@@ -22,10 +22,25 @@ public class mainController {
                     }
                     break;
                 case 2:
-                    System.out.println("Teacher login coming soon...");
+                    while (!teacherController.verify()) {
+                        view.error();
+                    }
+                    view.success();
+                    run = 1;
+                    while (run == 1) {
+                        run = teacherController.displayOptions();
+                    }
                     break;
                 case 3:
-                    System.out.println("Student login coming soon...");
+                    while (!studentController.verify()) {
+                        view.error();
+                    }
+                    view.success();
+                    studentController.greet();
+                    run = 1;
+                    while (run == 1) {
+                        run = studentController.displayOptions();
+                    }
                     break;
                 case 4:
                     System.out.println("Exiting...");

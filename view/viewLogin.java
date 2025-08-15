@@ -1,7 +1,7 @@
 package view;
 
 import static Util.colors.*;
-import controller.Input;
+import Util.Input;
 
 public class viewLogin {
     public void welcome(){
@@ -11,7 +11,7 @@ public class viewLogin {
     }
 
     public void error(){
-        System.out.println(RED+"Wrong Credentials, Try Again"+RESET);
+        System.out.println(RED+"❌Wrong Credentials, Try Again"+RESET);
     }
 
     public void success(){
@@ -24,7 +24,7 @@ public class viewLogin {
         System.out.println("2. Teacher");
         System.out.println("3. Student");
         System.out.println(RED+"4. Exit\n"+RESET);
-        System.out.print("\nEnter your Choice : ");
+        System.out.print("Enter your Choice : ");
         return Input.getInt();
     }
 }
