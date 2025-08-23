@@ -66,13 +66,3 @@ This project follows the **MVC architecture** and integrates **Google Gemini AI 
 3. Configure your MySQL database and update the DB connection details in the code.
 4. Add the required JAR libraries to the project.
 5. Run the Main class to start the application.
-
-### 📂 Project Structure
-Institution-Management-Console/
-│── src/
-|   ├── DOA/          # DataBase Connections 
-│   ├── model/        # Database models  
-│   ├── view/         # Console UI  
-│   ├── controller/   # Business logic & flow  
-│   ├── utils/        # Helper classes (Private Utitities)
-|   └── services      # Helper classes (Generate OTP,Send mail, etc)
