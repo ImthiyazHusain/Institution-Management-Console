@@ -9,10 +9,11 @@ public class studentDOA {
     public static boolean addStudent(int Stud_ID,String name,int age,int hsc,String email,int CID,String CName,int amtPaid,int bal,int fee,String gender){
         String attendanceTable = "INSERT INTO attendance (Stud_ID,Stud_Name,CID,Course_Name) VALUES (?,?,?,?)";
         String Mark = "INSERT INTO Marks (Stud_ID,Stud_Name,CID,Course_Name) VALUES (?,?,?,?)";
-        String qry = "INSERT INTO students (Stud_ID, Stud_Name, Stud_Age, Stud_HSC_Mark, Email, Course_ID, Course_Name, Amt_Paid, Amt_Balance, Tot_Fee, Gender) VALUES (?,?,?,?,?,?,?,?,?,?,?)";
+        String qry = "INSERT INTO students (Stud_ID, Stud_Name, Stud_Age, Stud_HSC_Mark, Email, Course_ID, Course_Name, Amt_Paid, Amt_Balance, Tot_Fee, Gender,Password) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)";
         int rs;
         try(Connection con = DbConnection.getConnection(); )
         {
+            String pass = "123456789";
             PreparedStatement pst = con.prepareStatement(qry);
             PreparedStatement pst2 = con.prepareStatement(attendanceTable);
             PreparedStatement pst3 = con.prepareStatement(Mark);
@@ -28,6 +29,7 @@ public class studentDOA {
             pst.setInt(9, bal);
             pst.setInt(10, fee);
             pst.setString(11, gender);
+            pst.setString(12,pass);
 
             pst2.setInt(1,Stud_ID);
             pst2.setString(2,name);

@@ -75,11 +75,11 @@ public class viewAdmin {
     public static int getCourseID(){
         System.out.print("Select By, course ID : ");
         int id = getInt();
-        while (id < 1 || id > MAX_COURSE_ID) {
-            System.out.println("Invalid Selection");
-            System.out.print("Select By, course ID : ");
-            id = getInt();
-        }
+//        while (id < 1 || id > MAX_COURSE_ID) {
+//            System.out.println("Invalid Selection");
+//            System.out.print("Select By, course ID : ");
+//            id = getInt();
+//        }
         return id;
     }
 
