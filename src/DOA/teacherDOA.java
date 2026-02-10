@@ -23,12 +23,14 @@ public class teacherDOA {
         }
     }
     public static boolean addTeacher(int id, String name, String email){
-        String qry = "INSERT INTO teacherLogin (Teach_ID, Teach_Name, Mail) VALUES (?,?,?)";
+        String qry = "INSERT INTO teacherLogin (Teach_ID, Teach_Name, Mail, Teach_Pass) VALUES (?,?,?,?)";
         try(Connection con = DbConnection.getConnection()){
             PreparedStatement pst = con.prepareStatement(qry);
+            String pass = "1234";
             pst.setInt(1,id);
             pst.setString(2,name);
             pst.setString(3,email);
+            pst.setString(4,pass);
             int r = pst.executeUpdate();return r>0;
         } catch (SQLException e) {
             throw new RuntimeException(e);
